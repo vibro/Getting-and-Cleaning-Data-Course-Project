@@ -11,6 +11,18 @@
 
 library(plyr)
 
+#Download data if it doesn't already exist in the working directory
+
+if(!dir.exists("./UCI HAR Dataset")){
+	print("Downloading UCI HAR Dataset")
+
+	file <- "UCI_HAR_Dataset.zip"
+	fileurl <- "http://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip"
+	download.file(fileurl, file)
+	unzip(file)
+
+	datedownloaded_UCI_HAR_Dataset <<- date()
+	}
 
 #Load data
 
@@ -71,4 +83,12 @@ descriptive_names <- gsub("Gravi", "Gravity", descriptive_names)
 descriptive_names <- gsub("Mag", "Magnitude", descriptive_names)
 
 colnames(all_data) <- descriptive_names
+
+#Create dataset with average of each variable for each subject and activity
+
+tidy_data <- ddply(all_data, c("subject_id", "activity_label"), function(x) colMeans(x[3:ncol(all_data)], na.rm = TRUE))
+
+#Write dataset to text file
+
+write.table(tidy_data, "tidydata.txt", row.names = FALSE)
 
